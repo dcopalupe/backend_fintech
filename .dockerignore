@@ -1,0 +1,14 @@
+FinTech.API/bin/
+FinTech.API/obj/
+FinTech.API.Tests/bin/
+FinTech.API.Tests/obj/
+*.user
+*.suo
+.vs/
+.vscode/
+*.dll
+*.exe
+*.pdb
+appsettings.Development.json
+.DS_Store
+node_modules/
