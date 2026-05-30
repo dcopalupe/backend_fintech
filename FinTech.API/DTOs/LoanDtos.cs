@@ -3,43 +3,43 @@ using FinTech.API.Models.Enums;
 
 namespace FinTech.API.DTOs;
 
-public class CreateLoanDto
+public class SimulateLoanDto
 {
-    [Required]
-    [StringLength(100)]
-    public string UserId { get; set; } = string.Empty;
-
-    [Required]
-    [Range(100, 10000000)]
+    [Required(ErrorMessage = "El monto es requerido")]
+    [Range(100, 10000000, ErrorMessage = "El monto debe estar entre 100 y 10,000,000")]
     public decimal Amount { get; set; }
 
-    [Required]
-    [Range(1, 360)]
-    public int Term { get; set; } // Meses
+    [Required(ErrorMessage = "El plazo es requerido")]
+    [Range(1, 360, ErrorMessage = "El plazo debe estar entre 1 y 360 meses")]
+    public int Term { get; set; }
 
-    [Required]
-    [Range(0.01, 100)]
-    public decimal InterestRate { get; set; } // TEA
+    [Required(ErrorMessage = "La tasa de interés es requerida")]
+    [Range(0.01, 100, ErrorMessage = "La tasa de interés debe estar entre 0.01 y 100")]
+    public decimal InterestRate { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "El tipo de préstamo es requerido")]
     public LoanType LoanType { get; set; }
 }
 
-public class SimulateLoanDto
+public class CreateLoanDto
 {
-    [Required]
-    [Range(100, 10000000)]
+    [Required(ErrorMessage = "El ID de usuario es requerido")]
+    [StringLength(100, MinimumLength = 1, ErrorMessage = "El ID de usuario debe tener entre 1 y 100 caracteres")]
+    public string UserId { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "El monto es requerido")]
+    [Range(100, 10000000, ErrorMessage = "El monto debe estar entre 100 y 10,000,000")]
     public decimal Amount { get; set; }
 
-    [Required]
-    [Range(1, 360)]
-    public int Term { get; set; } // Meses
+    [Required(ErrorMessage = "El plazo es requerido")]
+    [Range(1, 360, ErrorMessage = "El plazo debe estar entre 1 y 360 meses")]
+    public int Term { get; set; }
 
-    [Required]
-    [Range(0.01, 100)]
-    public decimal InterestRate { get; set; } // TEA
+    [Required(ErrorMessage = "La tasa de interés es requerida")]
+    [Range(0.01, 100, ErrorMessage = "La tasa de interés debe estar entre 0.01 y 100")]
+    public decimal InterestRate { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "El tipo de préstamo es requerido")]
     public LoanType LoanType { get; set; }
 }
 
@@ -52,7 +52,7 @@ public class LoanSimulationResultDto
     public decimal MonthlyPayment { get; set; }
     public decimal TotalToPay { get; set; }
     public decimal TotalInterest { get; set; }
-    public List<PaymentScheduleDto> PaymentSchedule { get; set; } = new();
+    public List<PaymentScheduleItemDto> PaymentSchedule { get; set; } = new();
 }
 
 public class LoanDto
@@ -67,10 +67,4 @@ public class LoanDto
     public decimal MonthlyPayment { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
-}
-
-public class UpdateLoanStatusDto
-{
-    [Required]
-    public LoanStatus Status { get; set; }
 }

@@ -11,5 +11,4 @@ public interface ILoanService
     Task<IEnumerable<PaymentScheduleDto>> GetPaymentScheduleAsync(int id);
     Task<LoanDto?> ApproveLoanAsync(int id);
     Task<LoanDto?> RejectLoanAsync(int id);
-    Task<bool> DeleteLoanAsync(int id);
 }
