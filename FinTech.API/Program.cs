@@ -7,8 +7,31 @@ using FinTech.API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
+string connectionString;
+
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+
+if (!string.IsNullOrEmpty(databaseUrl))
+{
+    var databaseUri = new Uri(databaseUrl);
+    var userInfo = databaseUri.UserInfo.Split(':');
+
+    connectionString = string.Format(
+        "Host={0};Port={1};Database={2};Username={3};Password={4};SSL Mode=Prefer;Trust Server Certificate=true",
+        databaseUri.Host,
+        databaseUri.Port,
+        databaseUri.AbsolutePath.TrimStart('/'),
+        userInfo[0],
+        userInfo[1]
+    );
+}
+else
+{
+    connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+}
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
