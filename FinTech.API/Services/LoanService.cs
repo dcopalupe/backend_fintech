@@ -162,7 +162,6 @@ public class LoanService : ILoanService
             Interest = s.Interest,
             RemainingBalance = s.RemainingBalance,
             Status = s.Status,
-            PaidDate = s.PaidDate
         });
     }
 
