@@ -78,7 +78,7 @@ public class LoanService : ILoanService
         };
     }
 
-    public async Task<Loan?> CreateLoanAsync(CreateLoanDto createLoanDto)
+    public async Task<LoanDto?> CreateLoanAsync(CreateLoanDto createLoanDto)
     {
         var monthlyRate = FinancialCalculator.ConvertAnnualToMonthlyRate(createLoanDto.InterestRate);
 
@@ -123,30 +123,50 @@ public class LoanService : ILoanService
 
         await GeneratePaymentScheduleAsync(loan, monthlyRate);
 
-        return loan;
+        return MapToDto(loan);
     }
 
-    public async Task<IEnumerable<Loan>> GetAllLoansAsync(string? userId = null)
+    public async Task<IEnumerable<LoanDto>> GetAllLoansAsync(string? userId = null)
     {
+        IEnumerable<Loan> loans;
+
         if (!string.IsNullOrEmpty(userId))
         {
-            return await _loanRepository.GetByUserIdAsync(userId);
+            loans = await _loanRepository.GetByUserIdAsync(userId);
+        }
+        else
+        {
+            loans = await _loanRepository.GetAllAsync();
         }
 
-        return await _loanRepository.GetAllAsync();
+        return loans.Select(MapToDto);
     }
 
-    public async Task<Loan?> GetLoanByIdAsync(int id)
+    public async Task<LoanDto?> GetLoanByIdAsync(int id)
     {
-        return await _loanRepository.GetByIdAsync(id);
+        var loan = await _loanRepository.GetByIdAsync(id);
+        return loan != null ? MapToDto(loan) : null;
     }
 
-    public async Task<IEnumerable<PaymentSchedule>> GetPaymentScheduleAsync(int loanId)
+    public async Task<IEnumerable<PaymentScheduleDto>> GetPaymentScheduleAsync(int loanId)
     {
-        return await _paymentScheduleRepository.GetByLoanIdAsync(loanId);
+        var schedules = await _paymentScheduleRepository.GetByLoanIdAsync(loanId);
+        return schedules.Select(s => new PaymentScheduleDto
+        {
+            Id = s.Id,
+            LoanId = s.LoanId,
+            PaymentNumber = s.PaymentNumber,
+            DueDate = s.DueDate,
+            TotalPayment = s.TotalPayment,
+            Principal = s.Principal,
+            Interest = s.Interest,
+            RemainingBalance = s.RemainingBalance,
+            Status = s.Status,
+            PaidDate = s.PaidDate
+        });
     }
 
-    public async Task<Loan?> ApproveLoanAsync(int loanId)
+    public async Task<LoanDto?> ApproveLoanAsync(int loanId)
     {
         var loan = await _loanRepository.GetByIdAsync(loanId);
 
@@ -175,10 +195,10 @@ public class LoanService : ILoanService
         await _transactionRepository.AddAsync(disbursementTransaction);
         await _loanRepository.SaveChangesAsync();
 
-        return loan;
+        return MapToDto(loan);
     }
 
-    public async Task<Loan?> RejectLoanAsync(int loanId)
+    public async Task<LoanDto?> RejectLoanAsync(int loanId)
     {
         var loan = await _loanRepository.GetByIdAsync(loanId);
 
@@ -193,7 +213,7 @@ public class LoanService : ILoanService
         await _loanRepository.UpdateAsync(loan);
         await _loanRepository.SaveChangesAsync();
 
-        return loan;
+        return MapToDto(loan);
     }
 
     private List<PaymentScheduleItemDto> GenerateFixedPaymentSchedule(
@@ -318,33 +338,20 @@ public class LoanService : ILoanService
         await _paymentScheduleRepository.SaveChangesAsync();
     }
 
-    Task<LoanDto?> ILoanService.CreateLoanAsync(CreateLoanDto createLoanDto)
+    private LoanDto MapToDto(Loan loan)
     {
-        throw new NotImplementedException();
-    }
-
-    Task<LoanDto?> ILoanService.GetLoanByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task<IEnumerable<LoanDto>> ILoanService.GetAllLoansAsync(string? userId)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task<IEnumerable<PaymentScheduleDto>> ILoanService.GetPaymentScheduleAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task<LoanDto?> ILoanService.ApproveLoanAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task<LoanDto?> ILoanService.RejectLoanAsync(int id)
-    {
-        throw new NotImplementedException();
+        return new LoanDto
+        {
+            Id = loan.Id,
+            UserId = loan.UserId,
+            Amount = loan.Amount,
+            Term = loan.Term,
+            InterestRate = loan.InterestRate,
+            LoanType = loan.LoanType,
+            Status = loan.Status,
+            MonthlyPayment = loan.MonthlyPayment,
+            CreatedAt = loan.CreatedAt,
+            UpdatedAt = loan.UpdatedAt
+        };
     }
 }

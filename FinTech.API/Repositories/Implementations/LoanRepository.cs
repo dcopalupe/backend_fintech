@@ -47,16 +47,19 @@ public class LoanRepository : ILoanRepository
         return loan;
     }
 
-    public Task UpdateAsync(Loan loan)
+    public async Task UpdateAsync(Loan loan)
     {
         _context.Loans.Update(loan);
-        return Task.CompletedTask;
+        await Task.CompletedTask;
     }
 
-    public Task DeleteAsync(Loan loan)
+    public async Task DeleteAsync(int id)
     {
-        _context.Loans.Remove(loan);
-        return Task.CompletedTask;
+        var loan = await GetByIdAsync(id);
+        if (loan != null)
+        {
+            _context.Loans.Remove(loan);
+        }
     }
 
     public async Task<bool> ExistsAsync(int id)

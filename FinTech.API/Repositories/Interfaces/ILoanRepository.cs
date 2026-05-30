@@ -9,7 +9,7 @@ public interface ILoanRepository
     Task<IEnumerable<Loan>> GetByUserIdAsync(string userId);
     Task<Loan> AddAsync(Loan loan);
     Task UpdateAsync(Loan loan);
-    Task DeleteAsync(Loan loan);
+    Task DeleteAsync(int id);
     Task<bool> ExistsAsync(int id);
     Task SaveChangesAsync();
 }
