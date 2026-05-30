@@ -25,6 +25,36 @@ public class CreateLoanDto
     public LoanType LoanType { get; set; }
 }
 
+public class SimulateLoanDto
+{
+    [Required]
+    [Range(100, 10000000)]
+    public decimal Amount { get; set; }
+
+    [Required]
+    [Range(1, 360)]
+    public int Term { get; set; } // Meses
+
+    [Required]
+    [Range(0.01, 100)]
+    public decimal InterestRate { get; set; } // TEA
+
+    [Required]
+    public LoanType LoanType { get; set; }
+}
+
+public class LoanSimulationResultDto
+{
+    public decimal Amount { get; set; }
+    public int Term { get; set; }
+    public decimal InterestRate { get; set; }
+    public LoanType LoanType { get; set; }
+    public decimal MonthlyPayment { get; set; }
+    public decimal TotalToPay { get; set; }
+    public decimal TotalInterest { get; set; }
+    public List<PaymentScheduleDto> PaymentSchedule { get; set; } = new();
+}
+
 public class LoanDto
 {
     public int Id { get; set; }
