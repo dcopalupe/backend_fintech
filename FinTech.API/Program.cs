@@ -7,33 +7,16 @@ using FinTech.API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+Console.WriteLine("=== VARIABLES ===");
+
+foreach (System.Collections.DictionaryEntry env in Environment.GetEnvironmentVariables())
+{
+    Console.WriteLine($"{env.Key}: {env.Value}");
+}
+
 string connectionString;
-// Intentar múltiples fuentes para la conexión
-Console.WriteLine("\n🔍 BUSCANDO CONFIGURACIÓN DE BASE DE DATOS...\n");
-
-// 1. Intentar Environment.GetEnvironmentVariable("DATABASE_URL")
 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-Console.WriteLine($"1️⃣  Environment.GetEnvironmentVariable(\"DATABASE_URL\"): {(!string.IsNullOrEmpty(databaseUrl) ? "✓ ENCONTRADA" : "✗ Vacía")}");
-
-// 2. Intentar builder.Configuration["DATABASE_URL"]
-if (string.IsNullOrEmpty(databaseUrl))
-{
-    databaseUrl = builder.Configuration["DATABASE_URL"];
-    Console.WriteLine($"2️⃣  builder.Configuration[\"DATABASE_URL\"]: {(!string.IsNullOrEmpty(databaseUrl) ? "✓ ENCONTRADA" : "✗ Vacía")}");
-}
-
-// 3. Intentar builder.Configuration.GetConnectionString("DATABASE_URL")
-if (string.IsNullOrEmpty(databaseUrl))
-{
-    databaseUrl = builder.Configuration.GetConnectionString("DATABASE_URL");
-    Console.WriteLine($"3️⃣  ConnectionStrings:DATABASE_URL: {(!string.IsNullOrEmpty(databaseUrl) ? "✓ ENCONTRADA" : "✗ Vacía")}");
-}
-
-// 4. Intentar DefaultConnection
-var defaultConnection = builder.Configuration.GetConnectionString("DefaultConnection");
-Console.WriteLine($"4️⃣  DefaultConnection: {(!string.IsNullOrEmpty(defaultConnection) ? "✓ ENCONTRADA" : "✗ Vacía")}");
-
-Console.WriteLine(new string('-', 70));
 
 if (!string.IsNullOrEmpty(databaseUrl))
 {
