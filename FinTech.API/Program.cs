@@ -79,8 +79,6 @@ Console.WriteLine(new string('-', 60));
 
 string connectionString;
 
-var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-
 if (!string.IsNullOrEmpty(databaseUrl))
 {
     try
