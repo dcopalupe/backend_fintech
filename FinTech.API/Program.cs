@@ -7,58 +7,8 @@ using FinTech.API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Console.WriteLine("\n" + new string('=', 60));
-Console.WriteLine("🚀 FINTECH API - INICIALIZANDO");
-Console.WriteLine(new string('=', 60));
-
-// MOSTRAR TODAS LAS VARIABLES DE ENTORNO
-Console.WriteLine("\n🔍 TODAS LAS VARIABLES DE ENTORNO:");
-Console.WriteLine(new string('-', 70));
-
-var envVars = Environment.GetEnvironmentVariables();
-var sortedKeys = new List<string>();
-
-foreach (var key in envVars.Keys)
-{
-    sortedKeys.Add(key.ToString()!);
-}
-
-sortedKeys.Sort();
-
-int count = 0;
-foreach (var key in sortedKeys)
-{
-    var value = envVars[key]?.ToString() ?? "";
-
-    // Truncar valores muy largos
-    if (value.Length > 80)
-    {
-        value = value.Substring(0, 77) + "...";
-    }
-
-    // Ocultar passwords/secrets parcialmente
-    if (key.Contains("PASSWORD", StringComparison.OrdinalIgnoreCase) ||
-        key.Contains("SECRET", StringComparison.OrdinalIgnoreCase) ||
-        key.Contains("TOKEN", StringComparison.OrdinalIgnoreCase))
-    {
-        if (value.Length > 8)
-        {
-            value = value.Substring(0, 4) + "***" + value.Substring(value.Length - 4);
-        }
-        else if (value.Length > 0)
-        {
-            value = "***";
-        }
-    }
-
-    Console.WriteLine($"{count + 1,3}. {key,-40} = {value}");
-    count++;
-}
-
-Console.WriteLine($"\n📊 Total de variables encontradas: {count}");
-Console.WriteLine(new string('-', 70));
-
-string databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL") ?? "";
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL") ?? "";
+Console.WriteLine($"DATABASE_URL: {databaseUrl}");
 string connectionString;
 
 if (!string.IsNullOrEmpty(databaseUrl))
