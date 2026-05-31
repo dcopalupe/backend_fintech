@@ -57,7 +57,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 "http://localhost:3000",
-                "https://frontendfintech.vercel.app"
+                "https://frontendfintech.vercel.app",
+                "https://frontendfintech-git-main-dcopa-bcpbols-projects.vercel.app"
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
