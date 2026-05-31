@@ -13,21 +13,35 @@ var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 
 if (!string.IsNullOrEmpty(databaseUrl))
 {
-    var databaseUri = new Uri(databaseUrl);
-    var userInfo = databaseUri.UserInfo.Split(':');
+    try
+    {
+        var databaseUri = new Uri(databaseUrl);
+        var userInfo = databaseUri.UserInfo.Split(':');
 
-    connectionString = string.Format(
-        "Host={0};Port={1};Database={2};Username={3};Password={4};SSL Mode=Prefer;Trust Server Certificate=true",
-        databaseUri.Host,
-        databaseUri.Port,
-        databaseUri.AbsolutePath.TrimStart('/'),
-        userInfo[0],
-        userInfo[1]
-    );
+        connectionString = string.Format(
+            "Host={0};Port={1};Database={2};Username={3};Password={4};SSL Mode=Prefer;Trust Server Certificate=true",
+            databaseUri.Host,
+            databaseUri.Port,
+            databaseUri.AbsolutePath.TrimStart('/'),
+            userInfo[0],
+            userInfo[1]
+        );
+
+        Console.WriteLine($"Host:     {databaseUri.Host}");
+        Console.WriteLine($"Puerto:   {databaseUri.Port}");
+        Console.WriteLine($"Database: {databaseUri.AbsolutePath.TrimStart('/')}");
+        Console.WriteLine($"Usuario:  {userInfo[0]}");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"ERROR parseando DATABASE_URL: {ex.Message}");
+        throw;
+    }
 }
 else
 {
     connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+    Console.WriteLine($"Local Connection String: {connectionString}");
 }
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
