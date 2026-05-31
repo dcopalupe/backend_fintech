@@ -24,7 +24,6 @@ public class TransactionService : ITransactionService
 
     public async Task<TransactionDto?> CreateTransactionAsync(CreateTransactionDto createTransactionDto)
     {
-        // Verificar si ya existe una transacción con el mismo IdempotencyKey
         var existingTransaction = await _transactionRepository.GetByIdempotencyKeyAsync(createTransactionDto.IdempotencyKey);
 
         if (existingTransaction != null)
@@ -32,7 +31,6 @@ public class TransactionService : ITransactionService
             return MapToDto(existingTransaction);
         }
 
-        // Si tiene LoanId, verificar que el préstamo exista
         if (createTransactionDto.LoanId.HasValue)
         {
             var loan = await _loanRepository.GetByIdAsync(createTransactionDto.LoanId.Value);
@@ -55,13 +53,11 @@ public class TransactionService : ITransactionService
 
         await _transactionRepository.AddAsync(transaction);
 
-        // Si es un pago y tiene LoanId, actualizar el cronograma
         if (createTransactionDto.Type == TransactionType.Payment && createTransactionDto.LoanId.HasValue)
         {
             await ProcessPaymentAsync(createTransactionDto.LoanId.Value, createTransactionDto.Amount);
             transaction.Status = TransactionStatus.Completed;
         }
-        // Si es un desembolso, activar el préstamo
         else if (createTransactionDto.Type == TransactionType.Disbursement && createTransactionDto.LoanId.HasValue)
         {
             var loan = await _loanRepository.GetByIdAsync(createTransactionDto.LoanId.Value);
@@ -119,12 +115,10 @@ public class TransactionService : ITransactionService
             }
             else
             {
-                // Pago parcial - por ahora lo dejamos pendiente
                 break;
             }
         }
 
-        // Verificar si el préstamo está completamente pagado
         var allPaid = await _paymentScheduleRepository.AllPaidAsync(loanId);
 
         if (allPaid)

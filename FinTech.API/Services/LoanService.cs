@@ -80,6 +80,23 @@ public class LoanService : ILoanService
 
     public async Task<LoanDto?> CreateLoanAsync(CreateLoanDto createLoanDto)
     {
+
+        var loansClient = await _loanRepository.GetByUserIdAsync(createLoanDto.UserId);
+
+        var sumPaymentMonthly = loansClient.Sum(loan => loan.MonthlyPayment);
+
+        if (sumPaymentMonthly > (createLoanDto.MonthlyPayment * 0.4m))
+        {
+            throw new Exception("La suma de las cuotas de sus prestamos no puede ser mayor al 40% de su ingreso mensual.");
+        }
+
+        int loansClientCount = loansClient.Count(loan => loan.Status == LoanStatus.Active);
+
+        if (loansClientCount > 3)
+        {
+            throw new Exception("El cliente no puede tener mas de 3 prestamos activos simultaneamente.");
+        }
+
         var monthlyRate = FinancialCalculator.ConvertAnnualToMonthlyRate(createLoanDto.InterestRate);
 
         decimal monthlyPayment;
@@ -106,6 +123,8 @@ public class LoanService : ILoanService
             );
         }
 
+        LoanStatus status = createLoanDto.Amount < 10000 && loansClientCount < 2 ? LoanStatus.Approved : LoanStatus.Pending;
+
         var loan = new Loan
         {
             UserId = createLoanDto.UserId,
@@ -113,7 +132,7 @@ public class LoanService : ILoanService
             Term = createLoanDto.Term,
             InterestRate = createLoanDto.InterestRate,
             LoanType = createLoanDto.LoanType,
-            Status = LoanStatus.Pending,
+            Status = status,
             MonthlyPayment = monthlyPayment,
             CreatedAt = DateTime.UtcNow
         };

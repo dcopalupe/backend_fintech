@@ -41,6 +41,9 @@ public class CreateLoanDto
 
     [Required(ErrorMessage = "El tipo de préstamo es requerido")]
     public LoanType LoanType { get; set; }
+
+    [Required(ErrorMessage = "El tipo de préstamo es requerido")]
+    public decimal MonthlyPayment { get; set; }
 }
 
 public class LoanSimulationResultDto

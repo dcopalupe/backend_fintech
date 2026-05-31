@@ -34,19 +34,26 @@ public class LoansController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<LoanDto>> CreateLoan([FromBody] CreateLoanDto createLoanDto)
     {
-        if (!ModelState.IsValid)
+        try
         {
-            return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var loanDto = await _loanService.CreateLoanAsync(createLoanDto);
+
+            if (loanDto == null)
+            {
+                return BadRequest("No se pudo crear el préstamo");
+            }
+
+            return CreatedAtAction(nameof(GetLoanById), new { id = loanDto.Id }, loanDto);
         }
-
-        var loanDto = await _loanService.CreateLoanAsync(createLoanDto);
-
-        if (loanDto == null)
+        catch (Exception ex)
         {
-            return BadRequest("No se pudo crear el préstamo");
+            return BadRequest(ex.Message);
         }
-
-        return CreatedAtAction(nameof(GetLoanById), new { id = loanDto.Id }, loanDto);
     }
 
     [HttpGet]
