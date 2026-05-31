@@ -81,6 +81,14 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+var runMigrations = Environment.GetEnvironmentVariable("RUN_MIGRATIONS");
+if (string.Equals(runMigrations, "true", StringComparison.OrdinalIgnoreCase))
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate();
+}
+
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
