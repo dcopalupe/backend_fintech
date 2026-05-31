@@ -11,72 +11,54 @@ Console.WriteLine("\n" + new string('=', 60));
 Console.WriteLine("🚀 FINTECH API - INICIALIZANDO");
 Console.WriteLine(new string('=', 60));
 
-// Intentar leer DATABASE_URL de múltiples fuentes
-Console.WriteLine("\n🔍 Buscando DATABASE_URL...");
-Console.WriteLine(new string('-', 60));
+// MOSTRAR TODAS LAS VARIABLES DE ENTORNO
+Console.WriteLine("\n🔍 TODAS LAS VARIABLES DE ENTORNO:");
+Console.WriteLine(new string('-', 70));
 
-string? databaseUrl = null;
-
-// 1. Intentar desde variables de entorno
-databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-if (!string.IsNullOrEmpty(databaseUrl))
-{
-    Console.WriteLine("✓ DATABASE_URL encontrada en Environment Variables");
-}
-
-// 2. Intentar desde configuración (appsettings o Railway)
-if (string.IsNullOrEmpty(databaseUrl))
-{
-    databaseUrl = builder.Configuration["DATABASE_URL"];
-    if (!string.IsNullOrEmpty(databaseUrl))
-    {
-        Console.WriteLine("✓ DATABASE_URL encontrada en Configuration");
-    }
-}
-
-// 3. Intentar desde ConnectionStrings en configuración
-if (string.IsNullOrEmpty(databaseUrl))
-{
-    databaseUrl = builder.Configuration.GetConnectionString("DATABASE_URL");
-    if (!string.IsNullOrEmpty(databaseUrl))
-    {
-        Console.WriteLine("✓ DATABASE_URL encontrada en ConnectionStrings");
-    }
-}
-
-// Debugging: Mostrar todas las variables de entorno disponibles
-Console.WriteLine("\n🔑 Variables de entorno disponibles:");
 var envVars = Environment.GetEnvironmentVariables();
-var railwayVars = new List<string>();
+var sortedKeys = new List<string>();
+
 foreach (var key in envVars.Keys)
 {
-    var keyStr = key.ToString()!;
-    if (keyStr.Contains("DATABASE", StringComparison.OrdinalIgnoreCase) ||
-        keyStr.Contains("RAILWAY", StringComparison.OrdinalIgnoreCase) ||
-        keyStr.Contains("POSTGRES", StringComparison.OrdinalIgnoreCase))
+    sortedKeys.Add(key.ToString()!);
+}
+
+sortedKeys.Sort();
+
+int count = 0;
+foreach (var key in sortedKeys)
+{
+    var value = envVars[key]?.ToString() ?? "";
+
+    // Truncar valores muy largos
+    if (value.Length > 80)
     {
-        railwayVars.Add(keyStr);
-        var value = envVars[key]?.ToString();
-        // Ocultar password en logs
-        if (value != null && value.Contains("://"))
+        value = value.Substring(0, 77) + "...";
+    }
+
+    // Ocultar passwords/secrets parcialmente
+    if (key.Contains("PASSWORD", StringComparison.OrdinalIgnoreCase) ||
+        key.Contains("SECRET", StringComparison.OrdinalIgnoreCase) ||
+        key.Contains("TOKEN", StringComparison.OrdinalIgnoreCase))
+    {
+        if (value.Length > 8)
         {
-            Console.WriteLine($"   {keyStr}: [DETECTED - postgresql://***]");
+            value = value.Substring(0, 4) + "***" + value.Substring(value.Length - 4);
         }
-        else
+        else if (value.Length > 0)
         {
-            Console.WriteLine($"   {keyStr}: {value}");
+            value = "***";
         }
     }
+
+    Console.WriteLine($"{count + 1,3}. {key,-40} = {value}");
+    count++;
 }
 
-if (railwayVars.Count == 0)
-{
-    Console.WriteLine("   ⚠️  No se encontraron variables relacionadas con Railway/Database");
-}
+Console.WriteLine($"\n📊 Total de variables encontradas: {count}");
+Console.WriteLine(new string('-', 70));
 
-Console.WriteLine(new string('-', 60));
-
-
+string databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL") ?? "";
 string connectionString;
 
 if (!string.IsNullOrEmpty(databaseUrl))
