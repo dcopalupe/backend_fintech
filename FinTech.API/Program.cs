@@ -31,7 +31,12 @@ else
 }
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options
+        .UseNpgsql(connectionString, npgsql =>
+        {
+            npgsql.EnableRetryOnFailure();
+            npgsql.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+        }));
 
 builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
@@ -62,7 +67,10 @@ app.UseSwaggerUI(options =>
     options.RoutePrefix = "swagger";
 });
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthorization();
 
