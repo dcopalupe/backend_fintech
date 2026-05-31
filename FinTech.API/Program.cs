@@ -7,14 +7,6 @@ using FinTech.API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-Console.WriteLine("=== VARIABLES ===");
-
-foreach (System.Collections.DictionaryEntry env in Environment.GetEnvironmentVariables())
-{
-    Console.WriteLine($"{env.Key}: {env.Value}");
-}
-
 string connectionString;
 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 
@@ -33,22 +25,15 @@ if (!string.IsNullOrEmpty(databaseUrl))
             userInfo[0],
             userInfo[1]
         );
-
-        Console.WriteLine($"Host:     {databaseUri.Host}");
-        Console.WriteLine($"Puerto:   {databaseUri.Port}");
-        Console.WriteLine($"Database: {databaseUri.AbsolutePath.TrimStart('/')}");
-        Console.WriteLine($"Usuario:  {userInfo[0]}");
     }
-    catch (Exception ex)
+    catch (Exception)
     {
-        Console.WriteLine($"ERROR parseando DATABASE_URL: {ex.Message}");
         throw;
     }
 }
 else
 {
     connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
-    Console.WriteLine($"Local Connection String: {connectionString}");
 }
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
