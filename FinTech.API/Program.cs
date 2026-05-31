@@ -51,6 +51,20 @@ builder.Services.AddScoped<IPaymentScheduleRepository, PaymentScheduleRepository
 builder.Services.AddScoped<ILoanService, LoanService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(
+                "http://localhost:3000",
+                "https://frontendfintech.vercel.app"
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
+});
+
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -80,6 +94,8 @@ app.UseSwaggerUI(options =>
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "FinTech API v1");
     options.RoutePrefix = "swagger";
 });
+
+app.UseCors("AllowFrontend");
 
 if (!app.Environment.IsProduction())
 {
